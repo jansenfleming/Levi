@@ -13,6 +13,7 @@ import { neonEnvironment } from './textures.js';
 import { createUI } from './ui.js';
 import { createScriptedSource } from './scripted.js';
 import { createSocketSource } from './net.js';
+import { createCreations } from './creations.js';
 
 const params = new URLSearchParams(location.search);
 const mobile = matchMedia('(max-width: 720px), (pointer: coarse)').matches;
@@ -42,6 +43,7 @@ const city = buildCity(scene, { mobile });
 const alien = createAlien(scene);
 const rain = createRain(scene, mobile ? 2500 : 7000);
 const cars = createCars(scene, mobile ? 14 : 28);
+const creations = createCreations(scene);
 
 // ---------- camera controls ----------
 const controls = new OrbitControls(camera, canvas);
@@ -65,7 +67,7 @@ let state = null;
 let clockOffset = 0; // source clock - local clock
 // ?demo runs the phase-1 scripted loop locally, without the server.
 const source = params.has('demo') ? createScriptedSource({ speed: Number(params.get('speed')) || 1 }) : createSocketSource();
-source.on('state', (s) => { state = s; clockOffset = s.now - Date.now(); });
+source.on('state', (s) => { state = s; clockOffset = s.now - Date.now(); creations.set(s.creations); });
 source.on('event', (e) => ui.addEvent(e));
 source.on('snapshot', (events) => ui.resetEvents(events));
 source.on('status', (st) => ui.setStatus(st));
@@ -178,6 +180,7 @@ function frame() {
   rain.update(t, controls.target);
   cars.update(dt);
   city.update(t, dt);
+  creations.update(t);
   controls.update();
   updateFade(dt);
   composer.render(dt);

@@ -4,11 +4,14 @@
   "private": true,
   "description": "An autonomous AI alien living alone in a small 3D cyberpunk town.",
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start": "node server/index.ts",
     "dev": "NODE_ENV=development node --watch server/index.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "admin": "node server/admin.ts"
   },
   "dependencies": {
     "three": "0.187.0",

@@ -87,6 +87,11 @@ export const GENERIC_ACTIONS = {
   think:   { label: 'Sitting and thinking', pose: 'think' },
   journal: { label: 'Writing in his journal', pose: 'journal' },
   nothing: { label: 'Doing nothing', pose: 'idle' },
+  browse:  { label: 'Reading the web', pose: 'read' },
+  website: { label: 'Working on a website', pose: 'journal' },
+  currency: { label: 'Working on his currency', pose: 'journal' },
+  build:   { label: 'Making something', pose: 'play' },
+  other:   { label: 'Doing something', pose: 'think' },
 };
 
 // Blocks occupied by places (by "i,j"); everything else gets generic towers.
@@ -128,6 +133,34 @@ function buildGraph() {
 
 export const GRAPH = buildGraph();
 export const INTERSECTIONS = GRAPH.nodes.filter((n) => n.id.startsWith('n:'));
+
+// ---------------------------------------------------------------------------
+// Build slots: sidewalk corners where Levi can make things. The object stands on the
+// sidewalk corner; he works from the curb next to it.
+const SLOT_OFFSET = BLOCK / 2 - BLOCK_HALF + 1.2;   // 5.2 from the intersection: on the 2-unit sidewalk ring
+const SLOT_DIRS = [[-1, 1, 'south-west'], [1, -1, 'north-east']];
+export const SLOTS = [];
+for (const x of GRID.slice(1, 4)) for (const z of GRID.slice(1, 4)) {
+  for (const [dx, dz, corner] of SLOT_DIRS) {
+    SLOTS.push({
+      id: `s${SLOTS.length + 1}`,
+      node: `n:${key(x, z)}`,
+      x: x + dx * SLOT_OFFSET, z: z + dz * SLOT_OFFSET,
+      standX: x + dx * 3.4, standZ: z + dz * 3.4,
+      corner,
+    });
+  }
+}
+/** A short human-readable description of where a slot is, e.g. "the south-west corner near the Noodle Bar". */
+export function slotDescription(slot) {
+  let best = null, bd = Infinity;
+  for (const [id, p] of Object.entries(PLACES)) {
+    const [cx, cz] = blockCenter(p.block[0], p.block[1]);
+    const d = Math.hypot(cx - slot.x, cz - slot.z);
+    if (d < bd) { bd = d; best = id; }
+  }
+  return `the ${slot.corner} street corner near ${PLACES[best].name}`;
+}
 
 function nearestNode(x, z) {
   let best = null, bd = Infinity;
@@ -177,6 +210,11 @@ export function locate(loc) {
     const spot = loc.activity ? p.activities[loc.activity].spot : p.generic;
     const [x, z] = toWorld(p, spot[0], spot[1]);
     return { x, z, yaw: resolveYaw(p, spot[2], spot[0], spot[1]), attach: GRAPH.doors[loc.place] };
+  }
+  if (loc.slot) {
+    const sl = SLOTS.find((q) => q.id === loc.slot) || SLOTS[0];
+    const n = GRAPH.nodes.find((q) => q.id === sl.node);
+    return { x: sl.standX, z: sl.standZ, yaw: Math.atan2(sl.x - sl.standX, sl.z - sl.standZ), attach: n, slot: true, nx: n.x, nz: n.z };
   }
   const n = GRAPH.nodes.find((q) => q.id === loc.node) || nearestNode(0, 0);
   // Sit on the sidewalk corner rather than in the middle of the intersection.
@@ -250,5 +288,6 @@ export function groundHeight(x, z) {
 export function locationName(loc) {
   if (!loc) return 'the streets';
   if (loc.place) return PLACES[loc.place].name;
+  if (loc.slot) { const sl = SLOTS.find((q) => q.id === loc.slot); return sl ? slotDescription(sl) : 'a street corner'; }
   return 'a street corner';
 }

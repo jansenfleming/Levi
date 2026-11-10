@@ -45,6 +45,7 @@ export function createUI({ onFollow, onRain }) {
   if (matchMedia('(max-width: 720px)').matches) panel.classList.add('hidden');
 
   let lastThought = '';
+  let lastList = '';
   return {
     setState(s, view) {
       const a = s.alien;
@@ -52,6 +53,9 @@ export function createUI({ onFollow, onRain }) {
       $('now').textContent = view.moving ? `Walking to ${locationName(a.loc)}` : a.deciding ? 'Pausing…' : (a.activity?.label || '…');
       $('where').textContent = view.moving ? 'On the streets' : locationName(a.loc);
       $('weather').textContent = s.weather ? (WEATHER[s.weather.kind] || s.weather.kind) : '–';
+      const b = $('brain');
+      b.textContent = s.brain ? `${s.brain.name.replace(/^ollama:/, '')}${s.brain.online ? '' : ' (offline)'}` : 'scripted';
+      b.classList.toggle('offline', !!s.brain && !s.brain.online);
       for (const k in bars) {
         const v = s.needs?.[k] ?? 0;
         bars[k].fill.style.width = `${Math.round(v * 100)}%`;
@@ -66,6 +70,15 @@ export function createUI({ onFollow, onRain }) {
       }
       const j = s.journal;
       $('journal-date').textContent = j ? j.date : '';
+      $('journal-title').textContent = j?.title || '';
+      const listKey = JSON.stringify(s.list || []);
+      if (listKey !== lastList) {
+        lastList = listKey;
+        const ul = $('list');
+        ul.replaceChildren();
+        if (!s.list?.length) ul.append(el('li', 'muted', 'Nothing on it yet.'));
+        else for (const item of s.list) ul.append(el('li', null, item));
+      }
       $('journal-text').textContent = j ? j.text : 'No journal entries yet.';
     },
     addEvent(e) {

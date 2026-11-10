@@ -7,8 +7,10 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { config, ROOT } from './config.ts';
 import { Simulation } from './sim.ts';
-import { PlaceholderDecider } from './decider.ts';
+import { createBrain } from './brain/index.ts';
 import { attachHub } from './hub.ts';
+import { store } from './db.ts';
+import { currencyBalance } from './work.ts';
 
 const HOST = config.host;
 const PORT = config.port;
@@ -105,6 +107,41 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     return res.end(indexCache.html);
   }
 
+  if (pathname === '/levi' || pathname === '/levi/') {
+    return sendFile(res, path.join(PUBLIC_DIR, 'levi.html'), indexCache.csp, 'no-cache');
+  }
+
+  if (pathname === '/api/levi') {
+    const cur = store.currency();
+    const body = JSON.stringify({
+      list: store.plans(),
+      journal: store.journal(30),
+      sites: store.sites().filter((x) => !x.hidden).map(({ slug, title, created, updated, versions }) => ({ slug, title, created, updated, versions })),
+      creations: store.creations(),
+      currency: cur ? { ...cur, held: currencyBalance(), ledger: store.ledger(50) } : null,
+      brain: sim.state.brain,
+    });
+    baseHeaders(res, indexCache.csp);
+    res.writeHead(200, { 'Content-Type': MIME['.json'], 'Cache-Control': 'no-cache' });
+    return res.end(body);
+  }
+
+  // Levi's own websites: whatever HTML he wrote, served in a locked-down sandbox
+  // (no scripts, no outside requests, opaque origin, can't be framed by others).
+  const siteMatch = pathname.match(/^\/levi\/sites\/([a-z0-9-]{1,40})(\/?)$/);
+  if (siteMatch) {
+    if (!siteMatch[2]) { res.writeHead(301, { Location: `/levi/sites/${siteMatch[1]}/` }); return res.end(); }
+    const site = store.site(siteMatch[1]);
+    if (!site || site.hidden) return notFound(res, indexCache.csp);
+    res.setHeader('Content-Security-Policy', "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache' });
+    return res.end(site.html);
+  }
+  if (pathname === '/levi/sites' || pathname === '/levi/sites/') { res.writeHead(302, { Location: '/levi#sites' }); return res.end(); }
+
   if (pathname.startsWith('/vendor/three/')) {
     const rel = pathname.slice('/vendor/three/'.length);
     if (!THREE_ALLOWED.some((d) => path.normalize(rel).startsWith(d + path.sep))) return notFound(res, indexCache.csp);
@@ -126,7 +163,7 @@ const server = createServer((req, res) => {
   });
 });
 
-const sim = new Simulation(new PlaceholderDecider());
+const sim = new Simulation(createBrain());
 attachHub(server, sim);
 sim.start();
 

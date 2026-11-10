@@ -9,7 +9,8 @@ const GENERIC_ACTIONS = GENERIC_JS as unknown as Record<string, Labelled>;
 
 export type ActionId =
   | 'sleep' | 'rest' | 'read' | 'eat' | 'play' | 'recharge' | 'sit_bench' | 'look_at_pond' | 'watch_hologram'
-  | 'wander' | 'sit_and_think' | 'write_journal' | 'do_nothing';
+  | 'wander' | 'sit_and_think' | 'write_journal' | 'do_nothing'
+  | 'browse_web' | 'work_on_website' | 'make_something' | 'work_on_currency' | 'something_else';
 
 export interface ActionDef {
   id: ActionId;
@@ -41,7 +42,15 @@ export const ACTIONS: Record<ActionId, ActionDef> = {
   sit_and_think:  { id: 'sit_and_think', place: null, activity: 'think', min: 5, max: 90, effects: { stimulation: 0.08 }, description: 'sit down where you are and think' },
   write_journal:  { id: 'write_journal', place: null, activity: 'journal', min: 5, max: 45, effects: { stimulation: 0.15 }, description: 'write in your journal' },
   do_nothing:     { id: 'do_nothing', place: null, activity: 'nothing', min: 5, max: 90, effects: {}, description: 'do nothing at all' },
+  browse_web:     { id: 'browse_web', place: null, activity: 'browse', min: 5, max: 60, effects: { stimulation: 0.3 }, description: 'read the web (search for something, or open a URL)' },
+  work_on_website:{ id: 'work_on_website', place: null, activity: 'website', min: 10, max: 120, effects: { stimulation: 0.3, energy: -0.02 }, description: 'make a new website of your own, or change one you made' },
+  make_something: { id: 'make_something', place: null, activity: 'build', min: 10, max: 120, effects: { stimulation: 0.35, energy: -0.04 }, description: 'make something on a street corner in town (a sculpture, sign, mural, lights, a plant, or anything else)' },
+  work_on_currency:{ id: 'work_on_currency', place: null, activity: 'currency', min: 5, max: 60, effects: { stimulation: 0.15 }, description: 'create or use a currency of your own (it only exists in this town)' },
+  something_else: { id: 'something_else', place: null, activity: 'other', min: 5, max: 120, effects: { stimulation: 0.1 }, description: 'do something that is not on this list (describe it in "details")' },
 };
+
+/** Actions whose "details" field matters. */
+export const NEEDS_DETAILS: ActionId[] = ['browse_web', 'work_on_website', 'make_something', 'work_on_currency', 'something_else'];
 
 export const ACTION_IDS = Object.keys(ACTIONS) as ActionId[];
 

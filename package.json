@@ -1,0 +1,25 @@
+{
+  "name": "alien-town",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An autonomous AI alien living alone in a small 3D cyberpunk town.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server/index.ts",
+    "dev": "NODE_ENV=development node --watch server/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "admin": "node server/admin.ts"
+  },
+  "dependencies": {
+    "three": "0.187.0",
+    "ws": "8.22.2"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/ws": "8.18.1",
+    "typescript": "7.0.2"
+  }
+}

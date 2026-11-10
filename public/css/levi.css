@@ -1,0 +1,23 @@
+/* The /levi page: a normal scrolling document on top of the shared tokens. */
+html:has(body.page), body.page { overflow: auto; height: auto; }
+body.page { background: radial-gradient(ellipse at top, #1a0b2e 0%, var(--bg) 60%) fixed; }
+.levi { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.levi h1 { font-size: 40px; letter-spacing: 0.2em; margin: 8px 0; color: var(--cyan); text-shadow: 0 0 18px rgba(0, 229, 255, 0.6); }
+.levi h2 { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin: 36px 0 10px; }
+.levi section { border-top: 1px solid var(--line); }
+.levi .muted { font-size: 12px; }
+.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.card { background: var(--glass); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.card a, .card strong { font-weight: 700; color: #fff; }
+.card p { margin: 6px 0 0; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; vertical-align: -1px; box-shadow: 0 0 8px currentColor; background: var(--cyan); }
+.quote { color: #e8e0ff; font-style: italic; }
+.big { font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px; }
+.ledger { list-style: none; padding: 0; margin: 12px 0 0; }
+.ledger li { display: grid; grid-template-columns: 150px 56px 1fr; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 12px; }
+.ledger time { color: var(--muted); }
+.ledger .op { color: var(--amber); }
+.entry { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.entry h3 { margin: 0; color: #fff; font-size: 15px; }
+.journal-body { white-space: pre-wrap; line-height: 1.6; color: #e8e0ff; }
+@media (max-width: 520px) { .ledger li { grid-template-columns: 1fr; gap: 0; } }

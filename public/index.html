@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A live experiment: an AI alien with no tasks and no goals, alone in a small cyberpunk town.">
+<meta name="theme-color" content="#07040f">
+<title>Alien Town</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="scene" aria-label="3D view of the town and the alien"></canvas>
+
+<div id="bubble" class="empty" aria-live="polite"><span id="bubble-text"></span></div>
+
+<header id="hud">
+  <div class="brand"><span class="dot" aria-hidden="true"></span>ALIEN TOWN <span id="source" class="tag">connecting</span></div>
+  <div class="clock-row">Town time <span id="clock">--:--</span></div>
+  <nav class="buttons">
+    <button id="btn-follow" type="button" title="Follow camera">◎ Follow</button>
+    <button id="btn-rain" type="button" title="Show rain">☂ Rain</button>
+    <button id="btn-panel" type="button" title="Show panel">☰ Panel</button>
+  </nav>
+</header>
+
+<aside id="panel" aria-label="What the alien is doing">
+  <section>
+    <h2>Now</h2>
+    <p id="now" class="now">…</p>
+    <dl class="facts">
+      <dt>Where</dt><dd id="where">–</dd>
+      <dt>Weather</dt><dd id="weather">–</dd>
+    </dl>
+  </section>
+  <section>
+    <h2>Needs</h2>
+    <div id="needs"></div>
+  </section>
+  <section class="grow">
+    <h2>Activity &amp; thoughts</h2>
+    <ul id="log"></ul>
+  </section>
+  <section>
+    <h2>Journal <span id="journal-date" class="muted"></span></h2>
+    <p id="journal-text" class="journal">No journal entries yet.</p>
+  </section>
+  <footer class="muted">Watch-only. Nobody tells him what to do.</footer>
+</aside>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>
